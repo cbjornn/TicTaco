@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .row
+            {
+                display: table-row;
+                height: 160px;
+            }
+            .cell
+            {
+                display: table-cell;
+                border: solid;
+                border-width: thin;
+                padding: 0px;
+                padding-bottom: 0px;
+                margin-bottom: 0px;
+                height: 160px;
+                width: 160px;
+                background-color: white;
+            }
+            body
+            {
+                text-align: center;
+                background-image: url("taco.png");
+                background-repeat: no-repeat;
+                background-position: left 200px top 130px;
+                background-size: 70%;
+                background-color: white;
+            }
+            .middle
+            {
+                width: 500px;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .h1
+            {
+                font-size: 80px;
+            }
+            td
+            {
+                width: 500px;
+                text-align: center;
+                font-size: 25px;
+            }
+            .border
+            {
+                border: solid black thin;
+            }
+        </style>
+        <script>
+            var playerXScore = 0; //used to win the game
+            var playerOScore = 0;
+            var winsArray = [7, 56, 448, 73, 146, 292, 273, 84];
+            var winner = false;
+            var redScore = 0; //used to win multiple games
+            var greenScore = 0;
+            var player1name = prompt("Enter First Player's Name?", "Red Sauce");
+            var player2name = prompt("Enter Second Player's Name?", "Green Sauce");
+            var currentMarker = player1name;
+
+            function start()
+            {
+                if (player1name !== "Red Sauce") //if player1name is not the default "Red Sauce" add in (Red Sauce) into score header
+                {
+                    document.getElementById("player1").innerHTML = player1name + " (Red Sauce)";
+
+                }
+                else
+                {
+                    document.getElementById("player1").innerHTML = player1name;
+
+                }
+                if (player2name !== "Green Sauce") //if player2name is not the default "Green Sauce" add in (Green Sauce) into score header
+                {
+                    document.getElementById("player2").innerHTML = player2name + " (Green Sauce)";
+
+                }
+                else
+                {
+                    document.getElementById("player2").innerHTML = player2name;
+
+                }
+                document.getElementById("greenScore").innerHTML = greenScore; //display starting values of scores
+                document.getElementById("redScore").innerHTML = redScore;
+                document.body.style.backgroundColor = "white"; //define the background as white
+                document.getElementById("player1b").style.backgroundColor = "red"; //start with player1's score area background as red to show they are the first turn
+            }
+
+            function playerMoved(id, value)
+            {
+                if (id.innerHTML === "")
+                {
+                    changeText(id);
+                    updateScore(value);
+                    if (currentMarker === player1name)
+                    {
+                        checkForWinner(playerXScore);
+                    }
+                    else
+                    {
+                        checkForWinner(playerOScore);
+                    }
+                    if (winner)
+                    {
+                        updatePlayerTotals();
+                        updateBackgroundColor(); //updates background color of page based on who is winning more games
+                        resetGame();
+                    }
+                    changePlayer();
+                    changePlayerColor(); //changes color of players' score areas based on the background color
+                    ifDraw(); //if there is no winner for the round the board resets
+                }
+            }
+
+            function changeText(id)
+            {
+                if (currentMarker === player1name)
+                {
+                    //changes background color of scores areas to illustrate whose turn it is
+                    id.innerHTML = '<img src="red.jpg">';
+                }
+                else
+                {
+                    id.innerHTML = '<img src="green.jpg">';
+                }
+            }
+
+            function changePlayer()
+            {
+                if (currentMarker === player1name)
+                {
+                    currentMarker = player2name;
+                }
+                else
+                {
+                    currentMarker = player1name;
+                }
+            }
+
+            function changePlayerColor()
+            {
+                //changes background color of scores areas to illustrate whose turn it is
+                if (currentMarker === player1name)
+                {
+                    if (document.body.style.backgroundColor === "white")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "red";
+                        document.getElementById("player2b").style.backgroundColor = "white";
+                    }
+                    else if (document.body.style.backgroundColor === "red")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "white";
+                        document.getElementById("player2b").style.backgroundColor = "red";
+                    }
+                    else if (document.body.style.backgroundColor === "green")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "white";
+                        document.getElementById("player2b").style.backgroundColor = "green";
+                    }
+                    else if (document.body.style.backgroundColor === "black")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "white";
+                        document.getElementById("player2b").style.backgroundColor = "black";
+                    }
+                }
+                else
+                {
+                    if (document.body.style.backgroundColor === "white")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "white";
+                        document.getElementById("player2b").style.backgroundColor = "green";
+                    }
+                    else if (document.body.style.backgroundColor === "red")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "red";
+                        document.getElementById("player2b").style.backgroundColor = "white";
+                    }
+                    else if (document.body.style.backgroundColor === "green")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "green";
+                        document.getElementById("player2b").style.backgroundColor = "white";
+                    }
+                    else if (document.body.style.backgroundColor === "black")
+                    {
+                        document.getElementById("player1b").style.backgroundColor = "black";
+                        document.getElementById("player2b").style.backgroundColor = "white";
+                    }
+                }
+            }
+
+            function updateScore(score)
+            {
+                if (currentMarker === player1name)
+                {
+                    playerXScore = playerXScore + score;
+                }
+                else
+                {
+                    playerOScore = playerOScore + score;
+                }
+            }
+
+            function checkForWinner(score)
+            {
+                var i;
+                for (var i = 0; i < winsArray.length; i++)
+                {
+                    if ((winsArray[i] & score) === winsArray[i])
+                    {
+                        winner = true;
+                        i = 99; //break out of for loop
+                    }
+                }
+            }
+
+            function updatePlayerTotals()
+            {
+                if (currentMarker === player1name)
+                {
+                    //updates total score if player wins a round
+                    redScore++;
+                    document.getElementById("redScore").innerHTML = redScore;
+                }
+                else
+                {
+                    greenScore++;
+                    document.getElementById("greenScore").innerHTML = greenScore;
+                }
+            }
+
+            function updateBackgroundColor()
+            {
+                //changes background color based on who is winning and by how much
+                if (currentMarker === player1name)
+                {
+                    player1Wins();
+                }
+                else
+                {
+                    player2Wins();
+                }
+            }
+
+            function player1Wins()
+            {
+                //if player 1 wins a round this makes changes to the background color and gives alerts
+                if (redScore === 3)
+                {
+                    if (greenScore === 0)
+                    {
+                        player1Backgrounds();
+                    }
+                    if (greenScore === 1)
+                    {
+                        player1Backgrounds();
+                    }
+                }
+                if (redScore > 3)
+                {
+                    if (redScore >= greenScore + 2)
+                    {
+                        player1Backgrounds();
+                    }
+                }
+            }
+
+            function player2Wins()
+            {
+                //if player 2 wins a round this makes changes to the background color and gives alerts
+                if (greenScore === 3)
+                {
+                    if (redScore === 0)
+                    {
+                        player2Backgrounds();
+                    }
+                    if (redScore === 1)
+                    {
+                        player2Backgrounds();
+                    }
+                }
+                if (greenScore > 3)
+                {
+                    if (greenScore >= redScore + 2)
+                    {
+                        player2Backgrounds();
+                    }
+                }
+            }
+
+            function player1Backgrounds()
+            {
+                //this makes appropriate sequence of changing the background color if player 1 won the match
+                if (document.body.style.backgroundColor === "white")
+                {
+                    document.body.style.backgroundColor = "red";
+                    alert(player1name + ", you won! Try to win again!");
+                }
+                else if (document.body.style.backgroundColor === "red")
+                {
+                    document.body.style.backgroundColor = "black";
+                    alert(player1name + ", you won! Keep it up!");
+                }
+                else if (document.body.style.backgroundColor === "black")
+                {
+                    document.body.style.backgroundColor = "white";
+                }
+                else if (document.body.style.backgroundColor === "green")
+                {
+                    document.body.style.backgroundColor = "white";
+                    alert(player1name + ", you won! See, " + player2name + " isn't 'the best', ya know?");
+                }
+                resetTotal();
+            }
+
+            function player2Backgrounds()
+            {
+                //this makes appropriate sequence of changing the background color if player 2 won the match
+                if (document.body.style.backgroundColor === "red")
+                {
+                    document.body.style.backgroundColor = "white";
+                    alert(player2name + ", you won! See, " + player1name + " isn't 'the best', ya know?");
+                }
+                else if (document.body.style.backgroundColor === "black")
+                {
+                    document.body.style.backgroundColor = "white";
+                }
+                else if (document.body.style.backgroundColor === "white")
+                {
+                    document.body.style.backgroundColor = "green";
+                    alert(player2name + ", you won! Try to win again!");
+                }
+                else if (document.body.style.backgroundColor === "green")
+                {
+                    document.body.style.backgroundColor = "black";
+                    alert(player2name + ", you won! Keep it up!");
+                }
+                resetTotal();
+            }
+
+            function resetGame()
+            {
+                //alert ("reset game");
+                //clear game board
+                winner = false;
+                var cellArray = document.getElementsByClassName("cell");
+                for (var i = 0; i < cellArray.length; i++)
+                {
+                    cellArray[i].innerHTML = "";
+                }
+                playerXScore = 0;
+                playerOScore = 0;
+            }
+
+            function cat()
+            {
+                var cellArray = document.getElementsByClassName("cell");
+                for (var i = 0; i < cellArray.length; i++)
+                {
+                    // your code 
+
+                    // stop for sometime if needed
+                    cellArray[i].innerHTML = "";
+                }
+            }
+
+            function ifDraw()
+            {
+                //if the game is a draw this resets the board
+                if (playerXScore + playerOScore === 511)
+                {
+                    var cellArray = document.getElementsByClassName("cell");
+                    for (var i = 0; i < cellArray.length; i++)
+                    {
+                        setTimeout(cat, 1000);
+                        cellArray[i].innerHTML = '<img src="cat.jpg">';
+                    }
+
+                    playerXScore = 0;
+                    playerOScore = 0;
+                }
+            }
+
+            function ifDraw2()
+            {
+                //sets up HTML "Clear Board" button by creating value of 511 and running ifDraw() function to reset the board
+                playerXScore = 511;
+                playerOScore = 0;
+                ifDraw();
+            }
+
+            function resetTotal()
+            {
+                //resets the total score for each player after a match has been won
+                greenScore = 0;
+                redScore = 0;
+                document.getElementById("greenScore").innerHTML = greenScore;
+                document.getElementById("redScore").innerHTML = redScore;
+            }
+        </script>
+        <title>Tic Taco</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body onload='start()'>
+        <div class="h1">Tic Taco</div>
+        <table>
+            <tr>
+                <td class='border' id='player1b'><div id='player1'></div><div id='redScore'></div></td>
+                <td>Be The First to Reach Three Points! <br>Win By Two!</td>
+                <td class='border' id='player2b'><div id='player2'></div><div id='greenScore'></div></td>
+            </tr>
+        </table>
+        <br><br>
+        <table>
+            <tr>
+                <td><div><img src="taco.png" height="231px" width="350px"></div><div><input type='button' name='Reset' value='Start New Game' onClick="window.location.reload()"></div></td>
+                <td><div class='middle'>
+                        <div class="row">
+                            <div class="cell" onclick="playerMoved(this, 1)"></div>
+                            <div class="cell" onclick="playerMoved(this, 2)"></div>
+                            <div class="cell" onclick="playerMoved(this, 4)"></div>
+                        </div>
+                        <div class="row">
+                            <div class="cell" onclick="playerMoved(this, 8)"></div>
+                            <div class="cell" onclick="playerMoved(this, 16)"></div>
+                            <div class="cell" onclick="playerMoved(this, 32)"></div>
+                        </div>
+                        <div class="row">
+                            <div class="cell" onclick="playerMoved(this, 64)"></div>
+                            <div class="cell" onclick="playerMoved(this, 128)"></div>
+                            <div class="cell" onclick="playerMoved(this, 256)"></div>
+                        </div>
+                    </div>
+                </td>
+                <td><div><img src="taco.png" height="231px" width="350px"></div><div><input type='button' value='Clear Board' onClick="ifDraw2()"></div></td>
+            </tr>
+        </table>
+    </body>
+</html>
